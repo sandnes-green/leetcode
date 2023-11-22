@@ -72,8 +72,8 @@ func isValid(s string) bool {
 		}
 	}
 	//括号没有全部闭合
-	if sum != 0 {
-		return false
+	if sum == 0 {
+		return true
 	}
 	return true
 }
