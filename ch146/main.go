@@ -25,6 +25,7 @@ type DLinkedNode struct {
 	prev, next *DLinkedNode
 }
 
+// 初始化节点
 func initDLinkedNode(key, value int) *DLinkedNode {
 	return &DLinkedNode{
 		key:   key,
@@ -32,11 +33,12 @@ func initDLinkedNode(key, value int) *DLinkedNode {
 	}
 }
 
+// 创建缓存对象
 func Constructor(capacity int) LRUCache {
 	l := LRUCache{
 		cache:    map[int]*DLinkedNode{},
-		head:     initDLinkedNode(0, 0),
-		tail:     initDLinkedNode(0, 0),
+		head:     initDLinkedNode(0, 0), //伪头部
+		tail:     initDLinkedNode(0, 0), //伪尾部
 		capacity: capacity,
 	}
 	l.head.next = l.tail
@@ -44,53 +46,60 @@ func Constructor(capacity int) LRUCache {
 	return l
 }
 
-func (this *LRUCache) Get(key int) int {
-	if _, ok := this.cache[key]; !ok {
+// 获取缓存
+func (cache *LRUCache) Get(key int) int {
+	if _, ok := cache.cache[key]; !ok {
 		return -1
 	}
-	node := this.cache[key]
-	this.moveToHead(node)
+	node := cache.cache[key]
+	// 移动节点到链表头部
+	cache.moveToHead(node)
 	return node.value
 }
 
-func (this *LRUCache) Put(key int, value int) {
-	if _, ok := this.cache[key]; !ok {
+func (cache *LRUCache) Put(key int, value int) {
+	// 判断是否有缓存，如果没有则存入缓存
+	if _, ok := cache.cache[key]; !ok {
 		node := initDLinkedNode(key, value)
-		this.cache[key] = node
-		this.addToHead(node)
-		this.size++
-		if this.size > this.capacity {
-			removed := this.removeTail()
-			delete(this.cache, removed.key)
-			this.size--
+		cache.cache[key] = node
+		// 添加到头节点
+		cache.addToHead(node)
+		cache.size++
+		// 如果当前缓存超出容量
+		if cache.size > cache.capacity {
+			// 移除尾节点
+			removed := cache.removeTail()
+			delete(cache.cache, removed.key)
+			cache.size--
 		}
 	} else {
-		node := this.cache[key]
+		node := cache.cache[key]
 		node.value = value
-		this.moveToHead(node)
+		// 移动到头部
+		cache.moveToHead(node)
 	}
 }
 
-func (this *LRUCache) addToHead(node *DLinkedNode) {
-	node.prev = this.head
-	node.next = this.head.next
-	this.head.next.prev = node
-	this.head.next = node
+func (cache *LRUCache) addToHead(node *DLinkedNode) {
+	node.prev = cache.head
+	node.next = cache.head.next
+	cache.head.next.prev = node
+	cache.head.next = node
 }
 
-func (this *LRUCache) removeNode(node *DLinkedNode) {
+func (cache *LRUCache) removeNode(node *DLinkedNode) {
 	node.prev.next = node.next
 	node.next.prev = node.prev
 }
 
-func (this *LRUCache) moveToHead(node *DLinkedNode) {
-	this.removeNode(node)
-	this.addToHead(node)
+func (cache *LRUCache) moveToHead(node *DLinkedNode) {
+	cache.removeNode(node)
+	cache.addToHead(node)
 }
 
-func (this *LRUCache) removeTail() *DLinkedNode {
-	node := this.tail.prev
-	this.removeNode(node)
+func (cache *LRUCache) removeTail() *DLinkedNode {
+	node := cache.tail.prev
+	cache.removeNode(node)
 	return node
 }
 
@@ -101,10 +110,10 @@ func main() {
 
 	obj.Put(2, 2)
 	fmt.Println(obj.Get(1))
-	obj.Put(3, 3)
-	fmt.Println(obj.Get(2))
-	obj.Put(4, 4)
-	fmt.Println(obj.Get(1))
-	fmt.Println(obj.Get(3))
-	fmt.Println(obj.Get(4))
+	// obj.Put(3, 3)
+	// fmt.Println(obj.Get(2))
+	// obj.Put(4, 4)
+	// fmt.Println(obj.Get(1))
+	// fmt.Println(obj.Get(3))
+	// fmt.Println(obj.Get(4))
 }
